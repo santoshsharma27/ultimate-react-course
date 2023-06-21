@@ -1,8 +1,5 @@
-import { useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import MovieDetails from "./components/MovieDetails";
-import { useMovies } from "./components/useMovies";
-import { useLocalStorageState } from "./components/useLocalStorageState";
-import { useKey } from "./components/useKey";
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -11,12 +8,30 @@ export const KEY = "f84fc31d";
 
 export default function App() {
   const [query, setQuery] = useState("");
+  const [movies, setMovies] = useState([]);
+  const [watched, setWatched] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState(null);
-  const { movies, isLoading, error } = useMovies(query);
 
-  // const [watched, setWatched] = useState([]);
+  /*
+  useEffect(function () {
+    console.log("After initial render");
+  }, []);
 
-  const [watched, setWatched] = useLocalStorageState([], "watched");
+  useEffect(function () {
+    console.log("After every render");
+  });
+
+  useEffect(
+    function () {
+      console.log("D");
+    },
+    [query]
+  );
+
+  console.log("During render");
+*/
 
   function handleSelectMovie(id) {
     setSelectedId((selectedId) => (id === selectedId ? null : id));
@@ -28,13 +43,59 @@ export default function App() {
 
   function handleAddWatched(movie) {
     setWatched((watched) => [...watched, movie]);
-
-    // localStorage.setItem("watched", JSON.stringify([...watched, movie]));
   }
 
   function handleDeleteWatched(id) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
+
+  useEffect(
+    function () {
+      const controller = new AbortController();
+
+      async function fetchMovies() {
+        try {
+          setIsLoading(true);
+          setError("");
+
+          const res = await fetch(
+            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
+            { signal: controller.signal }
+          );
+
+          if (!res.ok)
+            throw new Error("Something went wrong with fetching movies");
+
+          const data = await res.json();
+          if (data.Response === "False") throw new Error("Movie not found");
+
+          setMovies(data.Search);
+          setError("");
+        } catch (err) {
+          if (err.name !== "AbortError") {
+            console.log(err.message);
+            setError(err.message);
+          }
+        } finally {
+          setIsLoading(false);
+        }
+      }
+
+      if (query.length < 3) {
+        setMovies([]);
+        setError("");
+        return;
+      }
+
+      handleCloseMovie();
+      fetchMovies();
+
+      return function () {
+        controller.abort();
+      };
+    },
+    [query]
+  );
 
   return (
     <>
@@ -107,15 +168,6 @@ function Logo() {
 }
 
 function Search({ query, setQuery }) {
-  const inputEl = useRef(null);
-
-  useKey("Enter", function () {
-    if (document.activeElement === inputEl.current) return;
-
-    inputEl.current.focus();
-    setQuery("");
-  });
-
   return (
     <input
       className="search"
@@ -123,7 +175,6 @@ function Search({ query, setQuery }) {
       placeholder="Search movies..."
       value={query}
       onChange={(e) => setQuery(e.target.value)}
-      ref={inputEl}
     />
   );
 }
