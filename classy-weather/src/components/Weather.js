@@ -1,6 +1,10 @@
 import React from "react";
 import Day from "./Day";
+
 class Weather extends React.Component {
+  componentWillUnmount() {
+    console.log("weather will unmount");
+  }
   render() {
     const {
       temperature_2m_max: max,
@@ -19,6 +23,7 @@ class Weather extends React.Component {
               max={max.at(i)}
               min={min.at(i)}
               code={codes.at(i)}
+              key={dates}
               isToday={i === 0}
             />
           ))}
