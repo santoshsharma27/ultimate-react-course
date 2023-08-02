@@ -1,43 +1,23 @@
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import AppLayout from "./components/AppLayout";
-import About from "./components/About";
+import Header from "./components/Header";
 import Home from "./components/Home";
+import About from "./components/About";
 import Skills from "./components/Skills";
-import Error from "./components/Error";
-import Projects from "./components/Projects";
+import Projects from "./components/Project";
 import Contact from "./components/Contact";
-
-const router = createBrowserRouter([
-  {
-    element: <AppLayout />,
-    errorElement: <Error />,
-    children: [
-      {
-        path: "/",
-        element: <Home />,
-      },
-      {
-        path: "/about",
-        element: <About />,
-      },
-      {
-        path: "/skills",
-        element: <Skills />,
-      },
-      {
-        path: "/projects",
-        element: <Projects />,
-      },
-      {
-        path: "/contact",
-        element: <Contact />,
-      },
-    ],
-  },
-]);
+import Footer from "./components/Footer";
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <Header />
+      <Home />
+      <About />
+      <Skills />
+      <Projects />
+      <Contact />
+      <Footer />
+    </>
+  );
 }
 
 export default App;
