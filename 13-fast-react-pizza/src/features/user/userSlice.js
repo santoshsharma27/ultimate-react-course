@@ -39,13 +39,13 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    updateName(state, action) {
+    updateName: (state, action) => {
       state.username = action.payload;
     },
   },
   extraReducers: (builder) =>
     builder
-      .addCase(fetchAddress.pending, (state, action) => {
+      .addCase(fetchAddress.pending, (state) => {
         state.status = "loading";
       })
       .addCase(fetchAddress.fulfilled, (state, action) => {
@@ -53,7 +53,7 @@ const userSlice = createSlice({
         state.address = action.payload.address;
         state.status = "idle";
       })
-      .addCase(fetchAddress.rejected, (state, action) => {
+      .addCase(fetchAddress.rejected, (state) => {
         state.status = "error";
         state.error =
           "There was a problem getting your address. Make sure to fill this field!";
