@@ -24,9 +24,9 @@ export default function Form({ onAddItems }) {
         value={quantity}
         onChange={(e) => setQuantity(Number(e.target.value))}
       >
-        {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
-          <option value={num} key={num}>
-            {num}
+        {[...Array(20)].map((_, i) => (
+          <option key={i + 1} value={i + 1}>
+            {i + 1}
           </option>
         ))}
       </select>
